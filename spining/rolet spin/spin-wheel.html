@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Horizontal Roulette Spinner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: 'Titillium Web', sans-serif;
+      background: #191B28;
+    }
+
+    #spin-btn {
+      margin-top: 10px;
+      background: #F95146;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .roulette-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .roulette-wrapper .selector {
+      width: 3px;
+      background: grey;
+      left: 50%;
+      height: 100%;
+      transform: translate(-50%, 0%);
+      position: absolute;
+      z-index: 2;
+    }
+
+    .roulette-wrapper .wheel {
+      display: flex;
+    }
+
+    .roulette-wrapper .wheel .row {
+      display: flex;
+    }
+
+    .roulette-wrapper .wheel .row .card {
+      height: 75px;
+      width: 75px;
+      margin: 3px;
+      border-radius: 8px;
+      border-bottom: 3px solid rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5em;
+    }
+
+    .card.red {
+      background: #F95146;
+    }
+
+    .card.black {
+      background: #2D3035;
+    }
+
+    .card.green {
+      background: #00C74D;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    #previous-results {
+      margin-top: 20px;
+      color: white;
+      font-size: 1.1em;
+    }
+
+    #previous-results ul {
+      list-style: none;
+      padding: 0;
+      max-width: 300px;
+      margin-top: 10px;
+    }
+
+    #previous-results li {
+      background: #2D3035;
+      margin-bottom: 6px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #previous-results button.remove-btn {
+      background: #F95146;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      padding: 2px 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    #clear-all-btn {
+      margin-top: 10px;
+      background: #F95146;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    #result {
+      color: white;
+      font-size: 1.2em;
+      margin-top: 10px;
+      min-height: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div class="roulette-wrapper">
+    <div class="selector"></div>
+    <div class="wheel"></div>
+  </div>
+
+  <div>
+    <button id="spin-btn">
+      Spin Wheel
+    </button>
+    <div id="result">Outcome: </div>
+  </div>
+
+  <div id="previous-results">
+    <h3>Previous Results</h3>
+    <ul id="results-list"></ul>
+    <button id="clear-all-btn">Clear All</button>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      initWheel();
+
+      $('#spin-btn').on('click', function () {
+        var possibleOutcomes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+        var randomIndex = Math.floor(Math.random() * possibleOutcomes.length);
+        var outcome = possibleOutcomes[randomIndex];
+
+        var duration = (Math.random() * 4 + 4).toFixed(2); // seconds
+        spinWheel(outcome, duration);
+
+        setTimeout(function () {
+          $('#result').text('Outcome: ' + outcome);
+          addPreviousResult(outcome);
+        }, duration * 1000);
+      });
+
+      $('#clear-all-btn').on('click', function () {
+        $('#results-list').empty();
+      });
+
+      function addPreviousResult(outcome) {
+        var $li = $('<li></li>').text('Outcome: ' + outcome);
+        var $removeBtn = $('<button class="remove-btn">Remove</button>');
+        $removeBtn.on('click', function () {
+          $li.remove();
+        });
+        $li.append($removeBtn);
+        // Prepend to show latest result on top
+        $('#results-list').prepend($li);
+      }
+    });
+
+    function initWheel() {
+      var $wheel = $('.roulette-wrapper .wheel'),
+        row = "";
+
+      row += "<div class='row'>";
+      row += "  <div class='card red'>1</div>";
+      row += "  <div class='card black'>14</div>";
+      row += "  <div class='card red'>2</div>";
+      row += "  <div class='card black'>13</div>";
+      row += "  <div class='card red'>3</div>";
+      row += "  <div class='card black'>12</div>";
+      row += "  <div class='card red'>4</div>";
+      row += "  <div class='card green'>0</div>";
+      row += "  <div class='card black'>11</div>";
+      row += "  <div class='card red'>5</div>";
+      row += "  <div class='card black'>10</div>";
+      row += "  <div class='card red'>6</div>";
+      row += "  <div class='card black'>9</div>";
+      row += "  <div class='card red'>7</div>";
+      row += "  <div class='card black'>8</div>";
+      row += "</div>";
+
+      for (var x = 0; x < 29; x++) {
+        $wheel.append(row);
+      }
+    }
+
+    function spinWheel(roll, duration) {
+      var $wheel = $('.roulette-wrapper .wheel'),
+        order = [0, 11, 5, 10, 6, 9, 7, 8, 1, 14, 2, 13, 3, 12, 4],
+        position = order.indexOf(roll);
+
+      var rows = 12,
+        card = 75 + 3 * 2,
+        landingPosition = rows * 15 * card + position * card;
+
+      var randomize = Math.floor(Math.random() * 75) - 75 / 2;
+
+      landingPosition = landingPosition + randomize;
+
+      var object = {
+        x: Math.floor(Math.random() * 50) / 100,
+        y: Math.floor(Math.random() * 20) / 100,
+      };
+
+      $wheel.css({
+        'transition-timing-function': 'cubic-bezier(0,' + object.x + ',' + object.y + ',1)',
+        'transition-duration': duration + 's',
+        transform: 'translate3d(-' + landingPosition + 'px, 0px, 0px)',
+      });
+
+      setTimeout(function () {
+        $wheel.css({
+          'transition-timing-function': '',
+          'transition-duration': '',
+        });
+
+        var resetTo = -(position * card + randomize);
+        $wheel.css('transform', 'translate3d(' + resetTo + 'px, 0px, 0px)');
+      }, duration * 1000);
+    }
+  </script>
+</body>
+</html>
